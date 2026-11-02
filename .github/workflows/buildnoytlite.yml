@@ -87,17 +87,11 @@ on:
         required: true
         default: false
 
-      ytvid:
-        description: "Integrate YTVideoErrorAlert"
+      volboost:
+        description: "Integrate VolumeBoostYT (Require iOS 16+)"
         default: false
         required: false
         type: boolean
-
-      vbyt:
-        description: "N/A - keep turn off - VolumeBoostYT (Disabled - known to crash modern YT)"
-        type: boolean
-        required: true
-        default: false
 
       ytamp:
         description: "N/A - keep turn off - YTAnotherMiniplayer (Disabled - known to crash modern YT)"
@@ -138,12 +132,28 @@ jobs:
       - name: Hide Sensitive Inputs
         uses: levibostian/action-hide-sensitive-inputs@v1
         with:
-          exclude_inputs: bundle_id,display_name,demc,ytvid,enable_youpip,enable_yq,enable_ytflags,enable_Alderis,enable_youspeed,enable_ygc,enable_ryd,enable_ycq,enable_ytuhd,enable_vbyt,enable_ytamp
+          exclude_inputs: bundle_id,display_name,demc,youpip,youquality,ytflags,Alderis,youspeed,yougetcaption,ytshare,ytweaks,ytlitecustom,ryd,ycq,ytuhd,volboost,ytamp
           
-      - name: Download and Validate IPA
-        run: |
-          wget "${{ inputs.ipa_url }}" --quiet --no-verbose -O youtube.ipa
+      - name: Install MEGA downloader
+        if: ${{ startsWith(inputs.ipa_url, 'https://mega.nz/') }}
+        run: brew install megatools
 
+      - name: Download IPA from Mega share link
+        if: ${{ startsWith(inputs.ipa_url, 'https://mega.nz/') }}
+        env:
+          IPA_URL: ${{ inputs.ipa_url }}
+        run: |
+          megadl --no-progress --path youtube.ipa "$IPA_URL"
+
+      - name: Download IPA from direct URL
+        if: ${{ !startsWith(inputs.ipa_url, 'https://mega.nz/') }}
+        env:
+          IPA_URL: ${{ inputs.ipa_url }}
+        run: |
+          wget "$IPA_URL" --quiet --no-verbose -O youtube.ipa
+
+      - name: Validate IPA
+        run: |
           file_type=$(file --mime-type -b youtube.ipa)
 
           if [[ "$file_type" != "application/x-ios-app" && "$file_type" != "application/zip" ]]; then
@@ -158,30 +168,70 @@ jobs:
           echo "BUILD_DATE=$(date +'%d %b %y' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Install Dependencies
-        run: brew install make ldid swiftlint
+        run: brew install make ldid meason ninja
 
       - name: Set PATH Environment Variables
         run: |
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
           echo "THEOS=${{ github.workspace }}/theos" >> $GITHUB_ENV
 
-      - name: Clone Theos
-        run: git clone --quiet --depth=1 --recurse-submodules https://github.com/theos/theos.git
-           
-      - name: Download iOS SDK
+      # Original from YTweaks
+      - name: Get tweaks commit 
         run: |
-          git clone --quiet --depth=1 -n --filter=tree:0 https://github.com/Tonwalter888/iOS-SDKs.git
-          cd iOS-SDKs
-          git sparse-checkout set --no-cone iPhoneOS18.6.sdk
-          git checkout
-          mv *.sdk $THEOS/sdks
+          get_commit_hash() {
+            local repo_url=$1
+            git ls-remote "$repo_url" HEAD | awk '{print substr($1,1,7)}'
+          }
+          echo "THEOS_COMMIT=$(get_commit_hash "https://github.com/theos/theos")" >> $GITHUB_ENV
 
-      - name: Install cyan and tbd
+      - name: Cache Theos
+        id: cache-theos
+        uses: actions/cache@v6
+        with:
+          path: theos
+          key: 26.5-SDK-${{ env.THEOS_COMMIT }}
+
+      - name: Setup Theos
+        if: ${{ steps.cache-theos.outputs.cache-hit != 'true' }}
         run: |
-          pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
-          wget --quiet --no-verbose "https://github.com/inoahdev/tbd/releases/download/2.2/tbd-mac" -O /usr/local/bin/tbd
-          chmod +x /usr/local/bin/tbd 
+            git clone --quiet --depth=1 --recurse-submodules https://github.com/theos/theos.git
+            git clone --quiet --depth=1 -n --filter=tree:0 https://github.com/Tonwalter888/iOS-SDKs.git
+            cd iOS-SDKs
+            git sparse-checkout set --no-cone iPhoneOS26.5.sdk
+            git checkout --quiet
+            mv *.sdk "$THEOS/sdks"
+            cd ${{ github.workspace }}/theos/vendor/logos
+            git checkout a62370066a97e36d59b200a9fa10c5091f5e8972
+            
+      - name: Clone headers
+        run: |
+          if [ ! -d "$THEOS/include/YouTubeHeader" ]; then
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git "$THEOS/include/YouTubeHeader"
+          else
+            cd $THEOS/include/YouTubeHeader
+            git pull --quiet --force
+            cd ${{ github.workspace }}
+          fi
           
+          if [ "${{ inputs.demc }}" = "true" ]; then
+            rm -fr "$THEOS/include/YTHeaders"
+            cp -r "$THEOS/include/YouTubeHeader" "$THEOS/include/YTHeaders"
+          fi
+          
+          if [ ! -d "$THEOS/include/PSHeader" ]; then
+            git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git "$THEOS/include/PSHeader"
+          else
+            cd $THEOS/include/PSHeader
+            git pull --quiet --force
+            cd ${{ github.workspace }}
+          fi
+
+      - name: Fix Theos od broken pipe issue
+        run: sed -i '' 's/od -c "$i" | head/od -c "$i" 2>\/dev\/null | head/g' $THEOS/bin/convert_xml_plist.sh || true
+
+      - name: Install cyan
+        run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
+
       - name: Clone Open in YouTube (Safari Extension)
         run: |
           git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/BillyCurtis/OpenYouTubeSafariExtension.git
@@ -190,23 +240,13 @@ jobs:
           git checkout
           mv *.appex ${{ github.workspace }}
 
-      - name: Clone YouTubeHeader
-        run: |
-           git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git $THEOS/include/YouTubeHeader
-           if [ "${{ inputs.demc }}" = "true" ]; then
-            cp -r "$THEOS/include/YouTubeHeader" "$THEOS/include/YTHeaders"
-           fi
-
-      - name: Clone PSHeader
-        run: git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git $THEOS/include/PSHeader
-
       - name: Clone YouPiP
         if: ${{ inputs.youpip }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
     
       #- name: Clone YTUHD
         #if: ${{ inputs.ytuhd }}
-        #run: git clone --quiet --depth=1 https://github.com/Tonwalter888/YTUHD.git
+        #run: git clone --quiet --depth=1 --recurse https://github.com/PoomSmart/YTUHD.git
            
       #- name: Clone Return-YouTube-Dislikes
         #if: ${{ inputs.ryd }}
@@ -287,9 +327,9 @@ jobs:
       - name: Clone IAmYouTube
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/IAmYouTube.git
 
-      - name: Clone YTVideoErrorAlert
-        if: ${{ inputs.ytvid }}
-        run: git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoErrorAlert.git
+      - name: Clone VolumeBoostYT
+        if: ${{ inputs.volboost }}
+        run: git clone --quiet --depth=1 https://github.com/VasirakCalgux/VolumeBoostYT.git
         
       - name: Build YouPiP
         if: ${{ inputs.youpip }}
@@ -302,8 +342,8 @@ jobs:
         #if: ${{ inputs.ytuhd }}
         #run: |
           #cd YTUHD
-          
-          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          #make libvpx dav1d
+          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless SIDELOAD=1
           #mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
 
       #- name: Build Return-YouTube-Dislikes
@@ -393,7 +433,7 @@ jobs:
         if: ${{ inputs.Alderis }}
         run: |
           cd Alderis
-          sed -i '' 's/latest/18.6/g' Makefile
+          #sed -i '' 's/latest/18.6/g' Makefile
           make clean package DEBUG=0 FINALPACKAGE=1 ARCHS=arm64
           mv packages/*.deb ${{ github.workspace }}/alderis.deb
 
@@ -458,12 +498,12 @@ jobs:
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/imyt.deb
 
-      - name: Build YTVideoErrorAlert
-        if: ${{ inputs.ytvid }}
+      - name: Build VolumeBoostYT
+        if: ${{ inputs.volboost }}
         run: |
-          cd YTVideoErrorAlert
-          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/ytvideoerror.deb
+          cd VolumeBoostYT
+          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless ARCHS=arm64
+          mv packages/*.deb ${{ github.workspace }}/volboostyt.deb
           
       - name: Inject Tweaks Into IPA
         run: |
