@@ -285,7 +285,7 @@ jobs:
 
       - name: Clone YtLiteCustom
         if: ${{ inputs.ytlitecustom }}
-        run: git clone --quiet --depth=1 https://github.com/AfeefMohammed/MyYTFeatures.git
+        run: git clone --quiet --depth=1 https://github.com/AfeefMohammed/MyYTFeatures.git YtLiteCustom
 
       - name: Clone Alderis
         if: ${{ inputs.Alderis }}
