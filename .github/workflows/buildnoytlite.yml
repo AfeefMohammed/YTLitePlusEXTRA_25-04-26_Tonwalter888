@@ -3,32 +3,32 @@ on:
   workflow_dispatch:
     inputs:
 
-      enable_youpip:
-        description: "YouPiP"
+      youpip:
+        description: "Integrate YouPiP"
         type: boolean
         required: true
         default: true
 
-      enable_yq:
-        description: "YouQuality"
+      youquality:
+        description: "Integrate YouQuality"
         type: boolean
         required: true
         default: true
 
-      enable_ytflags:
-        description: "YTFlags"
+      ytflags:
+        description: "Integrate YTFlags"
         type: boolean
         required: true
         default: true
 
-      enable_Alderis:
+      Alderis:
         description: "Alderis - custom fix has been made"
         type: boolean
         required: true
         default: true
 
-      enable_youspeed:
-        description: "YouSpeed"
+      youspeed:
+        description: "Integrate YouSpeed"
         type: boolean
         required: true
         default: true
@@ -39,17 +39,29 @@ on:
         #required: true
         #default: true
 
-      enable_my_yt_features:
-        description: "MyYTFeatures"
+      ytlitecustom:
+        description: "Integrate MyYTFeatures repo"
         type: boolean
         required: true
         default: true
 
-      enable_ygc:
-        description: "YouGetCaption"
+      yougetcaption:
+        description: "Integrate YouGetCaption"
         type: boolean
         required: true
         default: true
+
+      ytshare:
+        description: "Integrate youtube-native-share"
+        default: true
+        required: false
+        type: boolean
+
+      ytweaks:
+        description: "Integrate YTweaks"
+        default: true
+        required: false
+        type: boolean
 
       demc:
         description: "DontEatMyContent (Keep disabled currently commented out)"
@@ -57,19 +69,19 @@ on:
         required: false
         type: boolean
 
-      enable_ryd:
+      ryd:
         description: "Return YouTube Dislikes (Keep disabled currently commented out)"
         type: boolean
         required: true
         default: false
 
-      enable_ycq:
+      ycq:
         description: "YouChooseQuality (Keep disabled if YouQuality is on)"
         type: boolean
         required: true
         default: false
 
-      enable_ytuhd:
+      ytuhd:
         description: "YTUHD (Disabled - known to crash modern YT)"
         type: boolean
         required: true
@@ -81,13 +93,13 @@ on:
         required: false
         type: boolean
 
-      enable_vbyt:
+      vbyt:
         description: "N/A - keep turn off - VolumeBoostYT (Disabled - known to crash modern YT)"
         type: boolean
         required: true
         default: false
 
-      enable_ytamp:
+      ytamp:
         description: "N/A - keep turn off - YTAnotherMiniplayer (Disabled - known to crash modern YT)"
         type: boolean
         required: true
@@ -189,15 +201,15 @@ jobs:
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/PSHeader.git $THEOS/include/PSHeader
 
       - name: Clone YouPiP
-        if: ${{ inputs.enable_youpip }}
+        if: ${{ inputs.youpip }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
     
       #- name: Clone YTUHD
-        #if: ${{ inputs.enable_ytuhd }}
+        #if: ${{ inputs.ytuhd }}
         #run: git clone --quiet --depth=1 https://github.com/Tonwalter888/YTUHD.git
            
       #- name: Clone Return-YouTube-Dislikes
-        #if: ${{ inputs.enable_ryd }}
+        #if: ${{ inputs.ryd }}
         #run: git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
 
       - name: Clone YouGroupSettings
@@ -210,61 +222,66 @@ jobs:
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
                   
       - name: Clone YouQuality
-        if: ${{ inputs.enable_yq }}
+        if: ${{ inputs.youquality }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
 
       - name: Clone YouSpeed
-        if: ${{ inputs.enable_youspeed }}
+        if: ${{ inputs.youspeed }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouSpeed.git
 
       #- name: Clone DontEatMyContent
         #if: ${{ inputs.demc }}
         #run: git clone --quiet --depth=1 https://github.com/therealFoxster/DontEatMyContent.git
 
-      - name: Clone YouMute
-        run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouMute.git
+      #- name: Clone YouMute
+        #run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouMute.git
     
-      - name: Clone YouLoop
-        run: git clone --quiet --depth=1 https://github.com/bhackel/YouLoop.git
+      #- name: Clone YouLoop
+        #run: git clone --quiet --depth=1 https://github.com/bhackel/YouLoop.git
 
       #- name: Clone YTTapToSeek
         #if: ${{ inputs.enable_tap_to_seek }}
         #run: git clone --quiet --depth=1 https://github.com/bhackel/YTTapToSeek.git
 
-      - name: Clone MyYTFeatures
-        if: ${{ inputs.enable_my_yt_features }}
+      - name: Clone YtLiteCustom
+        if: ${{ inputs.ytlitecustom }}
         run: git clone --quiet --depth=1 https://github.com/AfeefMohammed/MyYTFeatures.git
 
       - name: Clone Alderis
-        if: ${{ inputs.enable_Alderis }}
+        if: ${{ inputs.Alderis }}
         run: git clone --quiet --depth=1 https://github.com/hbang/Alderis.git
 
       - name: Clone YouSlider
-        if: ${{ inputs.enable_Alderis }}
+        if: ${{ inputs.Alderis }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouSlider.git
 
       #- name: Clone YouChooseQuality
-        #if: ${{ inputs.enable_ycq }}
+        #if: ${{ inputs.ycq }}
         #run: git clone --quiet https://github.com/PoomSmart/YouChooseQuality.git
 
-      - name: Clone YTSilentVote
-        run: git clone --quiet --depth=1 https://github.com/PoomSmart/YTSilentVote.git
+      #- name: Clone YTSilentVote
+        #run: git clone --quiet --depth=1 https://github.com/PoomSmart/YTSilentVote.git
 
       - name: Clone YouShare
         run: git clone --quiet --depth=1 https://github.com/Tonwalter888/YouShare.git
 
+      - name: Clone youtube-native-share
+        if: ${{ inputs.ytshare }}
+        run: git clone --quiet --depth=1 https://github.com/jkhsjdhjs/youtube-native-share.git
+
       #- name: Clone Gonerino
         #run: git clone --quiet --depth=1 https://github.com/castdrian/Gonerino.git
 
-      #- name: Clone YTweaks
-        #run: git clone --quiet --depth=1 https://github.com/fosterbarnes/YTweaks.git
+      - name: Clone YTweaks
+        if: ${{ inputs.ytweaks }}
+        run: git clone --quiet --depth=1 https://github.com/fosterbarnes/YTweaks.git
 
       - name: Clone YouGetCaption
-        if: ${{ inputs.enable_ygc }}
+        if: ${{ inputs.yougetcaption }}
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YouGetCaption.git
         
       - name: Clone YTFlags
-        if: ${{ inputs.enable_ytflags }}
+        if: ${{ inputs.ytflags }}
         run: git clone --quiet --depth=1 https://github.com/Tonwalter888/YTFlags.git
 
       - name: Clone IAmYouTube
@@ -275,14 +292,14 @@ jobs:
         run: git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoErrorAlert.git
         
       - name: Build YouPiP
-        if: ${{ inputs.enable_youpip }}
+        if: ${{ inputs.youpip }}
         run: |
           cd YouPiP
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/youpip.deb    
 
       #- name: Build YTUHD
-        #if: ${{ inputs.enable_ytuhd }}
+        #if: ${{ inputs.ytuhd }}
         #run: |
           #cd YTUHD
           
@@ -290,7 +307,7 @@ jobs:
           #mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
 
       #- name: Build Return-YouTube-Dislikes
-        #if: ${{ inputs.enable_ryd }}
+        #if: ${{ inputs.ryd }}
         #run: |
           #cd Return-YouTube-Dislikes
           #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
@@ -315,14 +332,14 @@ jobs:
           mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
 
       - name: Build YouQuality
-        if: ${{ inputs.enable_yq }}
+        if: ${{ inputs.youquality }}
         run: |
           cd YouQuality
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/youquality.deb
 
       - name: Build YouSpeed
-        if: ${{ inputs.enable_youspeed }}
+        if: ${{ inputs.youspeed }}
         run: |
           cd YouSpeed
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
@@ -335,17 +352,17 @@ jobs:
           #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           #mv packages/*.deb ${{ github.workspace }}/demc.deb
 
-      - name: Build YouMute
-        run: |
-          cd YouMute
-          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/ym.deb
+      #- name: Build YouMute
+        #run: |
+          #cd YouMute
+          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          #mv packages/*.deb ${{ github.workspace }}/ym.deb
 
-      - name: Build YouLoop
-        run: |
-          cd YouLoop
-          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/youloop.deb
+      #- name: Build YouLoop
+        #run: |
+          #cd YouLoop
+          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          #mv packages/*.deb ${{ github.workspace }}/youloop.deb
 
       #- name: Build YTTapToSeek
         #if: ${{ inputs.enable_tap_to_seek }}
@@ -358,22 +375,22 @@ jobs:
           #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           #mv packages/*.deb ${{ github.workspace }}/yttaptoseek.deb
 
-      - name: Build MyYTFeatures
-        if: ${{ inputs.enable_my_yt_features }}
+      - name: Build YtLiteCustom
+        if: ${{ inputs.ytlitecustom }}
         run: |
-          cd MyYTFeatures
+          cd YtLiteCustom
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/myytfeatures.deb
+          mv packages/*.deb ${{ github.workspace }}/ytlitecustom.deb
 
       - name: Build YouSlider
-        if: ${{ inputs.enable_Alderis }}
+        if: ${{ inputs.Alderis }}
         run: |
           cd YouSlider
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/youslider.deb
 
       - name: Build Alderis
-        if: ${{ inputs.enable_Alderis }}
+        if: ${{ inputs.Alderis }}
         run: |
           cd Alderis
           sed -i '' 's/latest/18.6/g' Makefile
@@ -388,17 +405,25 @@ jobs:
           #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           #mv packages/*.deb ${{ github.workspace }}/youchoose.deb
 
-      - name: Build YTSilentVote
-        run: |
-          cd YTSilentVote
-          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          mv packages/*.deb ${{ github.workspace }}/ytnovote.deb  
+      #- name: Build YTSilentVote
+        #run: |
+          #cd YTSilentVote
+          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          #mv packages/*.deb ${{ github.workspace }}/ytnovote.deb  
 
       - name: Build YouShare
         run: |
           cd YouShare
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/youshare.deb
+
+      - name: Build youtube-native-share
+        if: ${{ inputs.ytshare }}
+        run: |
+          cd youtube-native-share
+          git clone --quiet --depth=1 https://github.com/protocolbuffers/protobuf.git
+          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless ARCHS=arm64
+          mv packages/*.deb ${{ github.workspace }}/ytnativeshare.deb
           
       #- name: Build Gonerino
         #run: |
@@ -407,20 +432,21 @@ jobs:
           #mv packages/*.deb ${{ github.workspace }}/gonerino.deb
 
       - name: Build YouGetCaption
-        if: ${{ inputs.enable_ygc }}
+        if: ${{ inputs.yougetcaption }}
         run: |
           cd YouGetCaption
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           mv packages/*.deb ${{ github.workspace }}/ygc.deb
 
-      #- name: Build YTweaks
-        #run: |
-          #cd YTweaks
-          #make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-          #mv packages/*.deb ${{ github.workspace }}/ytweaks.deb
+      - name: Build YTweaks
+        if: ${{ inputs.ytweaks }}
+        run: |
+          cd YTweaks
+          make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          mv packages/*.deb ${{ github.workspace }}/ytweaks.deb
 
       - name: Build YTFlags
-        if: ${{ inputs.enable_ytflags }}
+        if: ${{ inputs.ytflags }}
         run: |
           cd YTFlags
           make clean package DEBUG=0 FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless ADDITIONAL_CFLAGS="-Wno-error=incompatible-pointer-types"
