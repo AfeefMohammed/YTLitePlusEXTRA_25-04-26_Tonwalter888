@@ -426,7 +426,9 @@ jobs:
       - name: Setup Alderis (Prebuilt)
         run: |
           wget --no-verbose --quiet https://github.com/Tonwalter888/Tonwalter888.github.io/raw/refs/heads/main/debs/alderis.deb -O ${{ github.workspace }}/alderis.deb
-          dpkg-deb -x ${{ github.workspace }}/alderis.deb $THEOS
+          ar -x ${{ github.workspace }}/alderis.deb
+          tar -xf data.tar.* -C $THEOS
+          rm -f control.tar.* data.tar.* debian-binary
 
       - name: Build YouSlider
         run: |
